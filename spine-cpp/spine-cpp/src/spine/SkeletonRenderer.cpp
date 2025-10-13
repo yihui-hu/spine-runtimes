@@ -175,7 +175,31 @@ RenderCommand *SkeletonRenderer::render(Skeleton &skeleton) {
 				clipper.clipEnd(slot);
 				continue;
 			}
-
+            
+            // AN_FIX - Supress Invalid Atlas - Debug crashing
+            
+            // TODO: Remove or comment out when no longer needed
+            // Applying a skin or animation with an unknown dependency will still crash,
+            // but at least it will log out what's causing it
+            //
+            //if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
+            //    RegionAttachment *regionAttachment = (RegionAttachment *) attachment;
+            //    if (!regionAttachment->getRegion() || !regionAttachment->getRegion()->rendererObject) {
+            //        printf("Missing region or rendererObject in RegionAttachment: Slot '%s', Attachment '%s'\n",
+            //               slot.getData().getName().buffer(),
+            //               regionAttachment->getName().buffer());
+            //    }
+            //} else if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
+            //    MeshAttachment *mesh = (MeshAttachment *) attachment;
+            //    if (!mesh->getRegion() || !mesh->getRegion()->rendererObject) {
+            //        printf("Missing region or rendererObject in MeshAttachment: Slot '%s', Attachment '%s'\n",
+            //               slot.getData().getName().buffer(),
+            //               mesh->getName().buffer());
+            //    }
+            //}
+            
+            // AN_FIX_END
+            
 			worldVertices->setSize(8, 0);
 			regionAttachment->computeWorldVertices(slot, *worldVertices, 0, 2);
 			verticesCount = 4;
@@ -193,6 +217,30 @@ RenderCommand *SkeletonRenderer::render(Skeleton &skeleton) {
 				clipper.clipEnd(slot);
 				continue;
 			}
+            
+            // AN_FIX - Supress Invalid Atlas - Debug crashing
+            
+            // TODO: Remove or comment out when no longer needed
+            // Applying a skin or animation with an unknown dependency will still crash,
+            // but at least it will log out what's causing it
+            //
+            //if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
+            //    MeshAttachment *mesh = (MeshAttachment *) attachment;
+            //    if (!mesh->getRegion() || !mesh->getRegion()->rendererObject) {
+            //        printf("Missing region or rendererObject in MeshAttachment: Slot '%s', Attachment '%s'\n",
+            //               slot.getData().getName().buffer(),
+            //               mesh->getName().buffer());
+            //    }
+            //} else if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
+            //    MeshAttachment *mesh = (MeshAttachment *) attachment;
+            //    if (!mesh->getRegion() || !mesh->getRegion()->rendererObject) {
+            //        printf("Missing region or rendererObject in MeshAttachment: Slot '%s', Attachment '%s'\n",
+            //               slot.getData().getName().buffer(),
+            //               mesh->getName().buffer());
+            //    }
+            //}
+            
+            // AN_FIX_END
 
 			worldVertices->setSize(mesh->getWorldVerticesLength(), 0);
 			mesh->computeWorldVertices(slot, 0, mesh->getWorldVerticesLength(), worldVertices->buffer(), 0, 2);

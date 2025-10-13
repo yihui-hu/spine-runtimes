@@ -2630,6 +2630,10 @@ public final class SkinEntries: NSObject {
         hasher.combine(self.wrappee)
         return hasher.finalize()
     }
+    
+    public var numEntries: Int32 {
+        return spine_skin_entries_get_num_entries(wrappee)
+    }
 
     @discardableResult
     public func getEntry(index: Int32) -> SkinEntry {

@@ -340,6 +340,11 @@ SkeletonData *SkeletonBinary::readSkeletonData(const unsigned char *binary, cons
 		else {
 			delete input;
 			delete skeletonData;
+            
+            // AN_FIX - Supress Invalid Atlas
+            setError("Invalid skin: ", "");
+            // AN_FIX_END  - Supress Invalid Atlas
+            
 			return NULL;
 		}
 	}
@@ -390,6 +395,11 @@ SkeletonData *SkeletonBinary::readSkeletonData(const unsigned char *binary, cons
 		if (!animation) {
 			delete input;
 			delete skeletonData;
+            
+            // AN_FIX - Supress Invalid Atlas
+            setError("Invalid Animation", "");
+            // AN_FIX_END  - Supress Invalid Atlas
+            
 			return NULL;
 		}
 		skeletonData->_animations[i] = animation;
@@ -510,32 +520,72 @@ Skin *SkeletonBinary::readSkin(DataInput *input, bool defaultSkin, SkeletonData 
 
 		for (int i = 0, n = readVarint(input, true); i < n; i++) {
 			int boneIndex = readVarint(input, true);
-			if (boneIndex >= (int) skeletonData->_bones.size()) return NULL;
-			skin->getBones().add(skeletonData->_bones[boneIndex]);
+            
+            // AN_FIX - Supress Invalid Atlas
+            
+            // if (boneIndex >= (int) skeletonData->_bones.size()) return NULL;
+            // skin->getBones().add(skeletonData->_bones[boneIndex]);
+
+            if (boneIndex < (int) skeletonData->_bones.size());
+                skin->getBones().add(skeletonData->_bones[boneIndex]);
+            
+            // AN_FIX_END - Supress Invalid Atlas
 		}
 
 		for (int i = 0, n = readVarint(input, true); i < n; i++) {
 			int ikIndex = readVarint(input, true);
-			if (ikIndex >= (int) skeletonData->_ikConstraints.size()) return NULL;
-			skin->getConstraints().add(skeletonData->_ikConstraints[ikIndex]);
+            
+            // AN_FIX - Supress Invalid Atlas
+            
+            // if (ikIndex >= (int) skeletonData->_ikConstraints.size()) return NULL;
+            // skin->getConstraints().add(skeletonData->_ikConstraints[ikIndex]);
+
+            if (ikIndex < (int) skeletonData->_ikConstraints.size());
+                skin->getConstraints().add(skeletonData->_ikConstraints[ikIndex]);
+            
+            // AN_FIX_END - Supress Invalid Atlas
 		}
 
 		for (int i = 0, n = readVarint(input, true); i < n; i++) {
 			int transformIndex = readVarint(input, true);
-			if (transformIndex >= (int) skeletonData->_transformConstraints.size()) return NULL;
-			skin->getConstraints().add(skeletonData->_transformConstraints[transformIndex]);
+            
+            // AN_FIX - Supress Invalid Atlas
+            
+            // if (transformIndex >= (int) skeletonData->_transformConstraints.size()) return NULL;
+            // skin->getConstraints().add(skeletonData->_transformConstraints[transformIndex]);
+
+            if (transformIndex < (int) skeletonData->_transformConstraints.size());
+                skin->getConstraints().add(skeletonData->_transformConstraints[transformIndex]);
+            
+            // AN_FIX_END - Supress Invalid Atlas
 		}
 
 		for (int i = 0, n = readVarint(input, true); i < n; i++) {
 			int pathIndex = readVarint(input, true);
-			if (pathIndex >= (int) skeletonData->_pathConstraints.size()) return NULL;
-			skin->getConstraints().add(skeletonData->_pathConstraints[pathIndex]);
+            
+            // AN_FIX - Supress Invalid Atlas
+            
+            // if (pathIndex >= (int) skeletonData->_pathConstraints.size()) return NULL;
+            // skin->getConstraints().add(skeletonData->_pathConstraints[pathIndex]);
+
+            if (pathIndex < (int) skeletonData->_pathConstraints.size());
+                skin->getConstraints().add(skeletonData->_pathConstraints[pathIndex]);
+            
+            // AN_FIX_END - Supress Invalid Atlas
 		}
 
 		for (int i = 0, n = readVarint(input, true); i < n; i++) {
 			int physicsIndex = readVarint(input, true);
-			if (physicsIndex >= (int) skeletonData->_physicsConstraints.size()) return NULL;
-			skin->getConstraints().add(skeletonData->_physicsConstraints[physicsIndex]);
+            
+            // AN_FIX - Supress Invalid Atlas
+            
+            // if (physicsIndex >= (int) skeletonData->_physicsConstraints.size()) return NULL;
+            // skin->getConstraints().add(skeletonData->_physicsConstraints[physicsIndex]);
+
+            if (physicsIndex < (int) skeletonData->_physicsConstraints.size());
+                skin->getConstraints().add(skeletonData->_physicsConstraints[physicsIndex]);
+            
+            // AN_FIX_END - Supress Invalid Atlas
 		}
 		slotCount = readVarint(input, true);
 	}
@@ -547,10 +597,14 @@ Skin *SkeletonBinary::readSkin(DataInput *input, bool defaultSkin, SkeletonData 
 			Attachment *attachment = readAttachment(input, skin, slotIndex, name, skeletonData, nonessential);
 			if (attachment)
 				skin->setAttachment(slotIndex, String(name), attachment);
-			else {
-				delete skin;
-				return NULL;
-			}
+            // AN_FIX - Supress Invalid Atlas
+            
+            // else {
+            //     delete skin;
+            //     return NULL;
+            // }
+            
+            // AN_FIX_END - Supress Invalid Atlas
 		}
 	}
 	return skin;
@@ -585,8 +639,14 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 			float height = readFloat(input) * _scale;
 			RegionAttachment *region = _attachmentLoader->newRegionAttachment(*skin, String(name), String(path), sequence);
 			if (!region) {
-				setError("Error reading attachment: ", name.buffer());
-				return NULL;
+                // AN_FIX - Supress Invalid Atlas
+                
+                // setError("Error reading attachment: ", name.buffer());
+                // return NULL;
+
+                return region;
+                
+                // AN_FIX_END - Supress Invalid Atlas
 			}
 			region->_path = path;
 			region->_rotation = rotation;
@@ -605,8 +665,14 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 		case AttachmentType_Boundingbox: {
 			BoundingBoxAttachment *box = _attachmentLoader->newBoundingBoxAttachment(*skin, String(name));
 			if (!box) {
-				setError("Error reading attachment: ", name.buffer());
-				return NULL;
+                // AN_FIX - Supress Invalid Atlas
+                
+                // setError("Error reading attachment: ", name.buffer());
+                // return NULL;
+
+                return box;
+                
+                // AN_FIX_END - Supress Invalid Atlas
 			}
 			int verticesLength = readVertices(input, box->getVertices(), box->getBones(), (flags & 16) != 0);
 			box->setWorldVerticesLength(verticesLength);
@@ -643,8 +709,14 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 
 			MeshAttachment *mesh = _attachmentLoader->newMeshAttachment(*skin, String(name), String(path), sequence);
 			if (!mesh) {
-				setError("Error reading attachment: ", name.buffer());
-				return NULL;
+                // AN_FIX - Supress Invalid Atlas
+                
+                // setError("Error reading attachment: ", name.buffer());
+                // return NULL;
+
+                return mesh;
+                
+                // AN_FIX_END - Supress Invalid Atlas
 			}
 			mesh->_path = path;
 			mesh->_color.set(color);
@@ -680,8 +752,14 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 
 			MeshAttachment *mesh = _attachmentLoader->newMeshAttachment(*skin, String(name), String(path), sequence);
 			if (!mesh) {
-				setError("Error reading attachment: ", name.buffer());
-				return NULL;
+                // AN_FIX - Supress Invalid Atlas
+                
+                // setError("Error reading attachment: ", name.buffer());
+                // return NULL;
+                
+                return mesh;
+                
+                // AN_FIX_END - Supress Invalid Atlas
 			}
 			mesh->_path = path;
 			mesh->_color.set(color);
@@ -699,8 +777,14 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 		case AttachmentType_Path: {
 			PathAttachment *path = _attachmentLoader->newPathAttachment(*skin, String(name));
 			if (!path) {
-				setError("Error reading attachment: ", name.buffer());
-				return NULL;
+                // AN_FIX - Supress Invalid Atlas
+                
+                // setError("Error reading attachment: ", name.buffer());
+                // return NULL;
+
+                return path;
+                
+                // AN_FIX_END - Supress Invalid Atlas
 			}
 			path->_closed = (flags & 16) != 0;
 			path->_constantSpeed = (flags & 32) != 0;
@@ -720,8 +804,14 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 		case AttachmentType_Point: {
 			PointAttachment *point = _attachmentLoader->newPointAttachment(*skin, String(name));
 			if (!point) {
-				setError("Error reading attachment: ", name.buffer());
-				return NULL;
+                // AN_FIX - Supress Invalid Atlas
+                
+                // setError("Error reading attachment: ", name.buffer());
+                // return NULL;
+
+                return point;
+                
+                // AN_FIX_END - Supress Invalid Atlas
 			}
 			point->_rotation = readFloat(input);
 			point->_x = readFloat(input) * _scale;
@@ -737,8 +827,14 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
 			int endSlotIndex = readVarint(input, true);
 			ClippingAttachment *clip = _attachmentLoader->newClippingAttachment(*skin, name);
 			if (!clip) {
-				setError("Error reading attachment: ", name.buffer());
-				return NULL;
+                // AN_FIX - Supress Invalid Atlas
+                
+                // setError("Error reading attachment: ", name.buffer());
+                // return NULL;
+
+                return clip;
+                
+                // AN_FIX_END - Supress Invalid Atlas
 			}
 			int verticesLength = readVertices(input, clip->getVertices(), clip->getBones(), (flags & 16) != 0);
 			clip->setWorldVerticesLength(verticesLength);

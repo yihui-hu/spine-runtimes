@@ -42,6 +42,14 @@ protocol SpineRendererDelegate: AnyObject {
     func spineRendererDidDraw(_ spineRenderer: SpineRenderer)
     
     func spineRendererDidUpdate(_ spineRenderer: SpineRenderer, scaleX: CGFloat, scaleY: CGFloat, offsetX: CGFloat, offsetY: CGFloat, size: CGSize)
+    
+    // AN_FIX - For syncing the two models
+    func spineRendererDidDrawFirstFrame(_ spineRenderer: SpineRenderer)
+    // AN_FIX_END
+
+    // AN_FIX - For updating stuff after spine renderer did draw *once*
+    func spineRendererAfterDidDrawOnce(_ spineRenderer: SpineRenderer)
+    // AN_FIX_END
 }
 
 protocol SpineRendererDataSource: AnyObject {
@@ -75,6 +83,10 @@ internal final class SpineRenderer: NSObject, MTKViewDelegate {
     
     weak var dataSource: SpineRendererDataSource?
     weak var delegate: SpineRendererDelegate?
+    
+    // AN_FIX - Flag for shouldCallAfterDrawOnce callback
+    private var shouldCallAfterDrawOnce: Bool = true
+    // AN_FIX_END
     
     internal init(
         device: MTLDevice,
@@ -144,6 +156,20 @@ internal final class SpineRenderer: NSObject, MTKViewDelegate {
     }
     
     func draw(in view: MTKView) {
+        // AN_FIX - For syncing the two models
+        // Notify the delegate about the first frame specifically
+        if lastDraw == 0 {
+            delegate?.spineRendererDidDrawFirstFrame(self)
+        }
+        // AN_FIX_END
+
+        // AN_FIX - For updating stuff after spine renderer did draw *once*
+        if shouldCallAfterDrawOnce && currentBufferIndex == 1 {
+            delegate?.spineRendererAfterDidDrawOnce(self)
+            self.shouldCallAfterDrawOnce = false
+        }
+        // AN_FIX_END
+        
         guard dataSource?.isPlaying(self) ?? false else {
             lastDraw = CACurrentMediaTime()
             return
@@ -151,7 +177,7 @@ internal final class SpineRenderer: NSObject, MTKViewDelegate {
         
         callNeedsUpdate()
         
-        // Tripple Buffering
+        // Triple Buffering
         // Source: https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/TripleBuffering.html#//apple_ref/doc/uid/TP40016642-CH5-SW1
         bufferingSemaphore.wait()
         currentBufferIndex = (currentBufferIndex + 1) % SpineRenderer.numberOfBuffers

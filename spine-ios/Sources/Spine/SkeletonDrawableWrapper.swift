@@ -171,4 +171,19 @@ public final class SkeletonDrawableWrapper: NSObject {
         
         skeletonDrawable.dispose()
     }
+    
+    // AN_FIX - Discarding drawable made from shared assets
+    
+    //
+    // Clean up without destroying the shared
+    // atlas and skeletonData.
+    //
+    public func disposeForSharedDrawable() {
+        if disposed { return }
+        disposed = true
+
+        skeletonDrawable.dispose()
+    }
+    
+    // AN_FIX_END
 }
