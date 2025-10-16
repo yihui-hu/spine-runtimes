@@ -31,7 +31,7 @@ import SpineShadersStructs
 import Foundation
 import simd
 
-extension RenderCommand {
+public extension RenderCommand {
     func getVertices() -> [SpineVertex] {
         var vertices = [SpineVertex]()
 
