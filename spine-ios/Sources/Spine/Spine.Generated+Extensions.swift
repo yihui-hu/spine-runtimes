@@ -226,7 +226,7 @@ public extension SkeletonData {
     }
 }
 
-internal extension SkeletonDrawable {
+public extension SkeletonDrawable {
     
     func render() -> [RenderCommand] {
         var commands = [RenderCommand]()
