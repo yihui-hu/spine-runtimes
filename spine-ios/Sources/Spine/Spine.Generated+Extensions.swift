@@ -246,8 +246,7 @@ public extension SkeletonDrawable {
     }
 }
 
-internal extension RenderCommand {
-    
+public extension RenderCommand {
     var numVertices: Int {
         Int(spine_render_command_get_num_vertices(wrappee))
     }
